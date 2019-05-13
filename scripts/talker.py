@@ -39,6 +39,9 @@
 import rospy
 from std_msgs.msg import String
 from sensor_msgs.msg import Imu
+from geometry_msgs.msg import Quaternion
+from geometry_msgs.msg import Pose
+import numpy as np
 
 
 import smbus            #import SMBus module of I2C
@@ -115,10 +118,23 @@ def imupub():
         Gx = gyro_x/131.0
         Gy = gyro_y/131.0
         Gz = gyro_z/131.0
+        Qx = 0
+        Qy = 0
+        Qz = 0
 
         hello_str = "hello world %s" % rospy.get_time()
-        imu_str = "Gx=%.2f" %Gx
+        imu_str = "Gx=%.2f" %Gx, "Gy=%.2f" %Gy
         msg = Imu()
+
+       
+        msg.orientation.x = Qx
+        msg.orientation.y = Qy
+        msg.orientation.z = Qz
+
+        msg.orientation_covariance[0] = Qx * Qz
+        msg.orientation_covariance[0] = Qy * Qy
+        msg.orientation_covariance[0] = Qz * Qz
+
 
         msg.angular_velocity.x = Gx
         msg.angular_velocity.y = Gy
@@ -134,6 +150,12 @@ def imupub():
         msg.linear_acceleration_covariance[4] = Ay * Ay
         msg.linear_acceleration_covariance[8] = Az * Az
 
+        #quaternion = ( pose.orientation.x, pose.orientation.y, pose.orientation.z, pose.orientation.w)
+        #euler = tf.transformations.euler_from_quaternion(quaternion)
+        #roll = euler[0]
+        #pitch = euler[1]
+        #yaw = euler[2]
+        
         rospy.loginfo(imu_str)
         pub.publish(msg)
         rate.sleep()

@@ -102,7 +102,10 @@ def imupub():
     rospy.init_node('tcc', anonymous=True)
     rate = rospy.Rate(10) # 10hz
     while not rospy.is_shutdown():
-
+    
+        i=0;
+        
+        
         #Read Accelerometer raw value
         acc_x = read_raw_data(ACCEL_XOUT_H)
         acc_y = read_raw_data(ACCEL_YOUT_H)
@@ -136,11 +139,21 @@ def imupub():
         #Calibrar automaticamente
         angle_pitch_acc -= 1.1 # Accelerometer calibration value for pitch
         angle_roll_acc -= -2.73 #Accelerometer calibration value for roll
+        
+        #If the IMU is already started
+        if i!=0:                  
+            angle_pitch = angle_pitch * 0.998 + angle_pitch_acc * 0.002  #Correct the drift of the gyro pitch angle with the accelerometer pitch angle
+            angle_roll = angle_roll * 0.998 + angle_roll_acc * 0.002     #Correct the drift of the gyro roll angle with the accelerometer roll angle
+ 
+        else:                                             #At first start
+            angle_pitch = angle_pitch_acc                 #Set the gyro pitch angle equal to the accelerometer pitch angle
+            angle_roll = angle_roll_acc                   #Set the gyro roll angle equal to the accelerometer roll angle
+            i += 1
+  
 
 
-
-
-        imu_str = "angle_pitch_acc: %.2f" %angle_pitch_acc, "angle_roll_acc: %.2f" %angle_roll_acc
+      #  imu_str = "angle_pitch_acc: %.2f" %angle_pitch_acc, "angle_roll_acc: %.2f" %angle_roll_acc
+        imu_str = "angle_pitch: %.2f" %angle_pitch, "angle_roll: %.2f" %angle_roll
         msg = Imu()
 
        
@@ -158,12 +171,6 @@ def imupub():
         msg.linear_acceleration_covariance[4] = Ay * Ay
         msg.linear_acceleration_covariance[8] = Az * Az
 
-        #quaternion = ( pose.orientation.x, pose.orientation.y, pose.orientation.z, pose.orientation.w)
-        #euler = tf.transformations.euler_from_quaternion(quaternion)
-        #roll = euler[0]
-        #pitch = euler[1]
-        #yaw = euler[2]
-        
         rospy.loginfo(imu_str)
         pub.publish(msg)
         rate.sleep()

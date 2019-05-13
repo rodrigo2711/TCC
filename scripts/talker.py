@@ -38,6 +38,7 @@
 
 import rospy
 from std_msgs.msg import String
+from sensor_msgs.msg import Imu
 
 
 import smbus            #import SMBus module of I2C
@@ -92,7 +93,7 @@ def read_raw_data(addr):
     
 
 def imupub():
-    pub = rospy.Publisher('/mpu6050', String, queue_size=10)
+    pub = rospy.Publisher('/mpu6050', Imu, queue_size=10)
     rospy.init_node('tcc', anonymous=True)
     rate = rospy.Rate(10) # 10hz
     while not rospy.is_shutdown():
@@ -117,9 +118,24 @@ def imupub():
 
         hello_str = "hello world %s" % rospy.get_time()
         imu_str = "Gx=%.2f" %Gx
+        msg = Imu()
+
+        msg.angular_velocity.x = Gx
+        msg.angular_velocity.y = Gy
+        msg.angular_velocity.z = Gz
+        msg.angular_velocity_covariance[0] = Gx * Gx
+        msg.angular_velocity_covariance[4] = Gy * Gy
+        msg.angular_velocity_covariance[8] = Gz * Gz
+        
+        msg.linear_acceleration.x = Ax
+        msg.linear_acceleration.y = Ay
+        msg.linear_acceleration.z = Az
+        msg.linear_acceleration_covariance[0] = Ax * Ax
+        msg.linear_acceleration_covariance[4] = Ay * Ay
+        msg.linear_acceleration_covariance[8] = Az * Az
 
         rospy.loginfo(imu_str)
-        pub.publish(imu_str)
+        pub.publish(msg)
         rate.sleep()
 
 

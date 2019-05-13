@@ -38,14 +38,16 @@
 
 import rospy
 import math
-
+PKG = 'beginner_tutorials'
+import roslib; roslib.load_manifest(PKG)
+import rospy
 from std_msgs.msg import String
 from sensor_msgs.msg import Imu
 from geometry_msgs.msg import Quaternion
 from geometry_msgs.msg import Pose
 import numpy as np
-
-
+import tf
+from beginner_tutorials.msg import Eulers
 import smbus            #import SMBus module of I2C
 from time import sleep          #import
 
@@ -93,14 +95,16 @@ def read_raw_data(addr):
         return value
 
 
-
 #    print ("Gx=%.2f" %Gx, u'\u00b0'+ "/s", "\tGy=%.2f" %Gy, u'\u00b0'+ "/s", "\tGz=%.2f" %Gz, u'\u00b0'+ "/s", "\tAx=%.2f g" %Ax, "\tAy=%.2f g" %Ay, "\tAz=%.2f g" %Az)     
     
 
 def imupub():
-    pub = rospy.Publisher('/mpu6050', Imu, queue_size=10)
+    self.euler_msg = Eulers()
+    pub = rospy.Publisher("euler", Eulers, queue_size=10)
     rospy.init_node('tcc', anonymous=True)
     rate = rospy.Rate(10) # 10hz
+
+
     while not rospy.is_shutdown():
     
         i=0;
@@ -151,28 +155,19 @@ def imupub():
             i += 1
   
 
+        self.got_new_msg = True
+        self.euler_msg.header.stamp = msg.header.stamp
+        self.euler_msg.roll  = angle_roll
+        self.euler_msg.pitch = angle_pitch
 
-      #  imu_str = "angle_pitch_acc: %.2f" %angle_pitch_acc, "angle_roll_acc: %.2f" %angle_roll_acc
+ 
+         #  imu_str = "angle_pitch_acc: %.2f" %angle_pitch_acc, "angle_roll_acc: %.2f" %angle_roll_acc
         imu_str = "angle_pitch: %.2f" %angle_pitch, "angle_roll: %.2f" %angle_roll
         msg = Imu()
 
        
-        msg.angular_velocity.x = Gx
-        msg.angular_velocity.y = Gy
-        msg.angular_velocity.z = Gz
-        msg.angular_velocity_covariance[0] = Gx * Gx
-        msg.angular_velocity_covariance[4] = Gy * Gy
-        msg.angular_velocity_covariance[8] = Gz * Gz
-        
-        msg.linear_acceleration.x = Ax
-        msg.linear_acceleration.y = Ay
-        msg.linear_acceleration.z = Az
-        msg.linear_acceleration_covariance[0] = Ax * Ax
-        msg.linear_acceleration_covariance[4] = Ay * Ay
-        msg.linear_acceleration_covariance[8] = Az * Az
-
         rospy.loginfo(imu_str)
-        pub.publish(msg)
+        pub_euler.publish(self.euler_msg)
         rate.sleep()
 
 
@@ -182,7 +177,8 @@ if __name__ == '__main__':
         bus = smbus.SMBus(1)     # or bus = smbus.SMBus(0) for older version boards
         Device_Address = 0x68   # MPU6050 device address
 
-        MPU_Init()
+        beginner_tutorials = MPU_Init()
+        
 
         print (" Reading Data of Gyroscope and Accelerometer")
 

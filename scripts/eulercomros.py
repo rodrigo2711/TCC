@@ -90,13 +90,11 @@ def read_raw_data(addr):
                 value = value - 65536
         return value
 
-
-
 #    print ("Gx=%.2f" %Gx, u'\u00b0'+ "/s", "\tGy=%.2f" %Gy, u'\u00b0'+ "/s", "\tGz=%.2f" %Gz, u'\u00b0'+ "/s", "\tAx=%.2f g" %Ax, "\tAy=%.2f g" %Ay, "\tAz=%.2f g" %Az)     
     
 
 def imupub():
-    pub = rospy.Publisher('/mpu6050', String queue_size=10)
+    pub = rospy.Publisher('/mpu6050', String, queue_size=10)
     rospy.init_node('tcc', anonymous=True)
     rate = rospy.Rate(10) # 10hz
     while not rospy.is_shutdown():
@@ -138,8 +136,7 @@ def imupub():
 
 
 
-        msg = "angle_pitch_acc: %.2f" %angle_pitch_acc, "angle_roll_acc: %.2f" %angle_roll_acc
-        
+        msg = "angle_pitch_acc: %.2f angle_roll_acc: %.2f" %(angle_pitch_acc,angle_roll_acc)
 
        
 

@@ -39,7 +39,7 @@
 import rospy
 import math
 
-from std_msgs.msg import String
+from std_msgs.msg import Float64
 from sensor_msgs.msg import Imu
 import numpy as np
 
@@ -136,12 +136,14 @@ def imupub():
 
 
 
-        msg = "angle_pitch_acc: %.2f angle_roll_acc: %.2f" %(angle_pitch_acc,angle_roll_acc)
-
+        msg1 = "%.2f" %angle_pitch_acc
+        msg2 = "%.2f" %angle_roll_acc
+        
        
 
-        rospy.loginfo(msg)
-        pub.publish(msg)
+        rospy.loginfo(msg1)
+        pub.publish(msg1)
+        pub.publish(msg2)
         rate.sleep()
 
 

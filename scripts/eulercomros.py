@@ -94,7 +94,7 @@ def read_raw_data(addr):
     
 
 def imupub():
-    pub = rospy.Publisher('/mpu6050', String, queue_size=10)
+    pub = rospy.Publisher('/mpu6050', Float64, queue_size=10)
     rospy.init_node('tcc', anonymous=True)
     rate = rospy.Rate(10) # 10hz
     while not rospy.is_shutdown():

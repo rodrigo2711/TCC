@@ -1,0 +1,4 @@
+Terminal 1 - Rodar ROS
+Terminal 2 - Rodar o programa eulercomros.py
+Terminal 3 - rostopic echo /mpu6050
+Terminal 4 - Rodar o programa listener.py
